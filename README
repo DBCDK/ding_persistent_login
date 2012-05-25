@@ -1,0 +1,8 @@
+Provide persistent login credentials for Ding users.
+
+Requires: ding_user 7.x-0.19 (from DBCDK)
+          persistent_login 7.x-1.x
+
+The Persistent Login module provides the familiar "Remember Me" option in the user login form to keep the user logged in.
+However, the Ding user session is timed out after 15 minutes.
+This module extend the persistent_login module with a persistent ding_user cache that is syncronized with the persistent login.

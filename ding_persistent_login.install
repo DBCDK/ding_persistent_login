@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * @file
+ * Implementation of installation/uninstallation hooks.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function ding_persistent_login_schema() {
+  $schema = array();
+  $schema['ding_persistent_login'] = array(
+    'description' => 'Stores Persistent Login (PL) information for users that check Remember me when they log in.  If this info matches an anonymous user\'s PL cookie, they are logged in automatically..',
+    'fields' => array(
+      'uid' => array('type' => 'int', 'unsigned' => 1, 'not null' => 1,
+        'description' => 'The {users}.uid this row is for.',
+      ),
+      'creds' => array('type' => 'blob', 'not null' => 0, 'size' => 'big',
+        'description' => 'The long-lived series identifying the PL token sequence.',
+      ),
+    ),
+    'primary key' => array('uid'),
+  );
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+/*
+function ding_persistent_login_install() {
+  db_add_field('persistent_login', 'ding', array(
+    'description' => 'Data for Ding_user provider login.',
+    'type' => 'blob',
+    'not null' => FALSE,
+    'size' => 'big',
+  ));
+}
+
+
+function mymodule_install() {
+  db_update('system')
+    ->fields(array('weight' => $weight))
+    ->condition('name', 'mymodule')
+    ->execute();
+}
+
+*/

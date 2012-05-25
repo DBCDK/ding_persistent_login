@@ -1,0 +1,7 @@
+name = Persistent Login for Ding Users
+package = Ding!
+description = Provides a 'Remember Me' function for Ding providers.
+core = 7.x
+version = "7.x-0.1"
+dependencies[] = persistent_login
+dependencies[] = ding_user

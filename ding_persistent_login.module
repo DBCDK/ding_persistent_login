@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * @file
+ * Provide persistent login for Ding users.
+ */
+
+/**
+ * Implements hook_user_login().
+ * persistent_login delete the old database entry, create the cookie, and make a new db entry in this step
+ */
+function ding_persistent_login_user_login(&$edit, $account) {
+  $roles = array_values($GLOBALS['user']->roles);
+  if (user_is_logged_in() && sizeof($roles) == 1 && $roles[0] == 'authenticated user') {
+    $creds =  ( module_exists('ding_user') ) ? ding_user_get_creds($account) : '';
+    ding_persistent_login_save_creds($account->uid,$creds);
+  }
+}
+
+/**
+ * Implements hook_user_logout().
+ * delete the old database entry
+ */
+function ding_persistent_login_user_logout($account) {
+  ding_persistent_login_get_creds($account->uid,1);
+}
+
+/**
+ * Return the ding_user credentials from database
+ */
+function ding_persistent_login_get_creds($uid,$delete=false) {
+
+  $result = db_select('persistent_login', 'p')
+    ->fields('p', array('uid'))
+    ->condition('uid', $uid, '=')
+    ->execute()
+    ->fetchAssoc();
+  $persistent_uid = $result['uid'];
+
+  if (!$persistent_uid || $delete)  {
+    $deleted = db_delete('ding_persistent_login')
+      ->condition('uid', $uid)
+      ->execute();
+    return false;
+  }
+
+  $result = db_select('ding_persistent_login', 'p')
+  ->fields('p', array('uid','creds'))
+  ->condition('uid', $uid, '=')
+  ->execute()
+  ->fetchAssoc();
+
+  $creds = unserialize($result['creds']);
+  return $creds;
+}
+
+/**
+ * Save the ding_user credentials
+ */
+function ding_persistent_login_save_creds($uid,$creds) {
+
+  $result = db_select('ding_persistent_login', 'p')
+    ->fields('p', array('uid'))
+    ->condition('uid', $uid, '=')
+    ->execute()
+    ->fetchAssoc();
+  $ding_persistent_uid = $result['uid'];
+
+  if ( !$ding_persistent_uid ) {
+    $result = db_insert('ding_persistent_login')
+      ->fields(array(
+          'uid' => $uid,
+          'creds' => serialize($creds),
+      ))
+      ->execute();
+  } else {
+    $result = db_update('ding_persistent_login')
+      ->condition('uid', $uid)
+      ->fields(array(
+          'creds' => serialize($creds),
+      ))
+      ->execute();
+  }
+
+  return true;
+}
+

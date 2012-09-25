@@ -24,26 +24,3 @@ function ding_persistent_login_schema() {
   );
   return $schema;
 }
-
-/**
- * Implementation of hook_install().
- */
-/*
-function ding_persistent_login_install() {
-  db_add_field('persistent_login', 'ding', array(
-    'description' => 'Data for Ding_user provider login.',
-    'type' => 'blob',
-    'not null' => FALSE,
-    'size' => 'big',
-  ));
-}
-
-
-function mymodule_install() {
-  db_update('system')
-    ->fields(array('weight' => $weight))
-    ->condition('name', 'mymodule')
-    ->execute();
-}
-
-*/

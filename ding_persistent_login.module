@@ -10,10 +10,12 @@
  * persistent_login delete the old database entry, create the cookie, and make a new db entry in this step
  */
 function ding_persistent_login_user_login(&$edit, $account) {
-  $roles = array_values($GLOBALS['user']->roles);
-  if (user_is_logged_in() && sizeof($roles) == 1 && $roles[0] == 'authenticated user' && ding_user_is_provider_user($account)) {
-    $creds =  ( module_exists('ding_user') ) ? ding_user_get_creds($account) : '';
-    ding_persistent_login_save_creds($account->uid,$creds);
+  if (!empty($edit['values']['persistent_login'])) {
+    $roles = array_values($GLOBALS['user']->roles);
+    if (user_is_logged_in() && sizeof($roles) == 1 && $roles[0] == 'authenticated user' && ding_user_is_provider_user($account)) {
+      $creds = ding_user_get_creds($account);
+      ding_persistent_login_save_creds($account->uid, $creds);
+    }
   }
 }
 
@@ -22,33 +24,33 @@ function ding_persistent_login_user_login(&$edit, $account) {
  * delete the old database entry
  */
 function ding_persistent_login_user_logout($account) {
-  ding_persistent_login_get_creds($account->uid,1);
+  ding_persistent_login_get_creds($account->uid, 1);
 }
 
 /**
  * Return the ding_user credentials from database
  */
-function ding_persistent_login_get_creds($uid,$delete=false) {
+function ding_persistent_login_get_creds($uid, $delete = FALSE) {
 
   $result = db_select('persistent_login', 'p')
-    ->fields('p', array('uid'))
-    ->condition('uid', $uid, '=')
-    ->execute()
-    ->fetchAssoc();
+      ->fields('p', array('uid'))
+      ->condition('uid', $uid, '=')
+      ->execute()
+      ->fetchAssoc();
   $persistent_uid = $result['uid'];
 
-  if (!$persistent_uid || $delete)  {
+  if (!$persistent_uid || $delete) {
     $deleted = db_delete('ding_persistent_login')
-      ->condition('uid', $uid)
-      ->execute();
-    return false;
+        ->condition('uid', $uid)
+        ->execute();
+    return FALSE;
   }
 
   $result = db_select('ding_persistent_login', 'p')
-  ->fields('p', array('uid','creds'))
-  ->condition('uid', $uid, '=')
-  ->execute()
-  ->fetchAssoc();
+      ->fields('p', array('uid', 'creds'))
+      ->condition('uid', $uid, '=')
+      ->execute()
+      ->fetchAssoc();
 
   $creds = unserialize($result['creds']);
   return $creds;
@@ -57,31 +59,32 @@ function ding_persistent_login_get_creds($uid,$delete=false) {
 /**
  * Save the ding_user credentials
  */
-function ding_persistent_login_save_creds($uid,$creds) {
+function ding_persistent_login_save_creds($uid, $creds) {
 
   $result = db_select('ding_persistent_login', 'p')
-    ->fields('p', array('uid'))
-    ->condition('uid', $uid, '=')
-    ->execute()
-    ->fetchAssoc();
+      ->fields('p', array('uid'))
+      ->condition('uid', $uid, '=')
+      ->execute()
+      ->fetchAssoc();
   $ding_persistent_uid = $result['uid'];
 
-  if ( !$ding_persistent_uid ) {
+  if (!$ding_persistent_uid) {
     $result = db_insert('ding_persistent_login')
-      ->fields(array(
+        ->fields(array(
           'uid' => $uid,
           'creds' => serialize($creds),
-      ))
-      ->execute();
-  } else {
+        ))
+        ->execute();
+  }
+  else {
     $result = db_update('ding_persistent_login')
-      ->condition('uid', $uid)
-      ->fields(array(
+        ->condition('uid', $uid)
+        ->fields(array(
           'creds' => serialize($creds),
-      ))
-      ->execute();
+        ))
+        ->execute();
   }
 
-  return true;
+  return TRUE;
 }
 

@@ -14,7 +14,8 @@ function ding_persistent_login_user_login(&$edit, $account) {
     $roles = array_values($GLOBALS['user']->roles);
     if (user_is_logged_in() && sizeof($roles) == 1 && $roles[0] == 'authenticated user' && ding_user_is_provider_user($account)) {
       $creds = ding_user_get_creds($account);
-      ding_persistent_login_save_creds($account->uid, $creds);
+      //ding_persistent_login_save_creds($account->uid, $creds);
+      ding_persistent_login_save_creds($account->mail, $creds);
     }
   }
 }
@@ -24,7 +25,8 @@ function ding_persistent_login_user_login(&$edit, $account) {
  * delete the old database entry
  */
 function ding_persistent_login_user_logout($account) {
-  ding_persistent_login_get_creds($account->uid, 1);
+  dpm($account,'account in ding_persistent_login_user_logout');
+  ding_persistent_login_get_creds($account->mail, 1);
 }
 
 /**
@@ -32,59 +34,26 @@ function ding_persistent_login_user_logout($account) {
  */
 function ding_persistent_login_get_creds($uid, $delete = FALSE) {
 
-  $result = db_select('persistent_login', 'p')
-      ->fields('p', array('uid'))
-      ->condition('uid', $uid, '=')
-      ->execute()
-      ->fetchAssoc();
-  $persistent_uid = $result['uid'];
-
-  if (!$persistent_uid || $delete) {
-    $deleted = db_delete('ding_persistent_login')
-        ->condition('uid', $uid)
-        ->execute();
+  $retur1 = BibdkUser::instance()->getPersistent($uid);
+  if (!$retur1 || $delete) {
+    $retur1 = BibdkUser::instance()->deletePersistent($uid);
+    $deletereturn = BibdkUser::instance()->deletePersistentLoginData($uid);
     return FALSE;
   }
-
-  $result = db_select('ding_persistent_login', 'p')
-      ->fields('p', array('uid', 'creds'))
-      ->condition('uid', $uid, '=')
-      ->execute()
-      ->fetchAssoc();
-
-  $creds = unserialize($result['creds']);
+  $creds = BibdkUser::instance()->getPersistent($uid);
   return $creds;
 }
 
 /**
  * Save the ding_user credentials
+ *
  */
 function ding_persistent_login_save_creds($uid, $creds) {
-
-  $result = db_select('ding_persistent_login', 'p')
-      ->fields('p', array('uid'))
-      ->condition('uid', $uid, '=')
-      ->execute()
-      ->fetchAssoc();
-  $ding_persistent_uid = $result['uid'];
-
-  if (!$ding_persistent_uid) {
-    $result = db_insert('ding_persistent_login')
-        ->fields(array(
-          'uid' => $uid,
-          'creds' => serialize($creds),
-        ))
-        ->execute();
+  $retur1 = BibdkUser::instance()->getPersistent($uid);
+  if (!$retur1){
   }
   else {
-    $result = db_update('ding_persistent_login')
-        ->condition('uid', $uid)
-        ->fields(array(
-          'creds' => serialize($creds),
-        ))
-        ->execute();
   }
-
   return TRUE;
 }
 

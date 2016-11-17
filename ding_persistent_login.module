@@ -25,7 +25,6 @@ function ding_persistent_login_user_login(&$edit, $account) {
  * delete the old database entry
  */
 function ding_persistent_login_user_logout($account) {
-  dpm($account,'account in ding_persistent_login_user_logout');
   ding_persistent_login_get_creds($account->mail, 1);
 }
 

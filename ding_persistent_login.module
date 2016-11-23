@@ -33,9 +33,9 @@ function ding_persistent_login_user_logout($account) {
  */
 function ding_persistent_login_get_creds($uid, $delete = FALSE) {
 
-  $retur1 = BibdkUser::instance()->getPersistent($uid);
-  if (!$retur1 || $delete) {
-    $retur1 = BibdkUser::instance()->deletePersistent($uid);
+  $ok = BibdkUser::instance()->getPersistent($uid);
+  if (!$ok || $delete) {
+    $ok = BibdkUser::instance()->deletePersistent($uid);
     $deletereturn = BibdkUser::instance()->deletePersistentLoginData($uid);
     return FALSE;
   }
@@ -48,11 +48,12 @@ function ding_persistent_login_get_creds($uid, $delete = FALSE) {
  *
  */
 function ding_persistent_login_save_creds($uid, $creds) {
-  $retur1 = BibdkUser::instance()->getPersistent($uid);
-  if (!$retur1){
+  $ok = BibdkUser::instance()->setPersistent($uid,$creds);
+  if (!$ok){
+    return FALSE;
   }
   else {
+    return TRUE;
   }
-  return TRUE;
 }
 

@@ -14,7 +14,6 @@ function ding_persistent_login_user_login(&$edit, $account) {
     $roles = array_values($GLOBALS['user']->roles);
     if (user_is_logged_in() && sizeof($roles) == 1 && $roles[0] == 'authenticated user' && ding_user_is_provider_user($account)) {
       $creds = ding_user_get_creds($account);
-      //ding_persistent_login_save_creds($account->uid, $creds);
       ding_persistent_login_save_creds($account->mail, $creds);
     }
   }

@@ -29,6 +29,9 @@ function ding_persistent_login_user_logout($account) {
 
 /**
  * Return the ding_user credentials from database
+ * $param uid username (email)
+ * $param $delete TRUE delete persistent data in database
+ *                FALSE get persistent data from database
  */
 function ding_persistent_login_get_creds($uid, $delete = FALSE) {
 
@@ -44,7 +47,8 @@ function ding_persistent_login_get_creds($uid, $delete = FALSE) {
 
 /**
  * Save the ding_user credentials
- *
+ * $param uid username (email)
+ * $param creds to save [userId=mail, pincode=0000]
  */
 function ding_persistent_login_save_creds($uid, $creds) {
   $ok = BibdkUser::instance()->setPersistent($uid,$creds);
